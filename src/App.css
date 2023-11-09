@@ -29,6 +29,34 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+.scorebordcont {
+  background-image: url('https://assets.ccbp.in/frontend/react-js/match-game-score-card-lg-bg.png');
+  height: 600px;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  width: 600px;
+}
+.retrybutsty {
+  background-color: #cf60c8;
+  border-radius: 4px;
+  border-style: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.troyimg {
+  height: 160px;
+  width: 250px;
+  margin-top: 200px;
+}
 .logopx {
   height: 30px;
   width: 100px;

@@ -1,5 +1,5 @@
 import './App.css'
-import {Component, Fragment} from 'react'
+import {Component} from 'react'
 import Tabitem from './tab_components'
 import Imgcompo from './img_components'
 
@@ -251,33 +251,86 @@ const imagesList = [
 
 // Replace your code here
 class App extends Component {
-  state = {tabid: tabsList[0].tabId, score: 0, istrue: false, time: 59}
+  state = {
+    tabid: tabsList[0].tabId,
+    score: 0,
+    istrue: false,
+    time: 60,
+    filteredimgs: imagesList.filter(
+      eachfilimg => eachfilimg.category === 'FRUIT',
+    ),
+    initialthumnail: imagesList[0].thumbnailUrl,
+    initialcategory: imagesList[0].category,
 
-  filterimages = () => {
-    const {tabid} = this.state
-    const imgfl = imagesList.filter(eachfilimg => eachfilimg.category === tabid)
-    return imgfl
+    initialid: imagesList[0].id,
+  }
+
+  componentDidMount() {
+    this.setTimer()
+  }
+
+  setTimer = () => {
+    this.myinterval = setInterval(
+      () => this.setState(prevState => ({time: prevState.time - 1})),
+      1000,
+    )
+  }
+
+  tryagainsetTimer = () => {
+    this.setState({time: 60})
   }
 
   modifitablist = tab => {
     this.setState({tabid: tab})
+    const imgfl = imagesList.filter(eachfilimg => eachfilimg.category === tab)
+    this.setState({filteredimgs: imgfl})
   }
 
-  settimeinteval = () => {
-    setInterval(() => {
-      this.setState(prevState => ({time: prevState.time - 1, istrue: true}))
-    }, 1000)
+  getRandomthumbnail = () => {
+    const myrandomnumber = Math.floor(Math.random() * imagesList.length)
+    return myrandomnumber
+  }
+
+  getImgurl = url => {
+    const {initialid} = this.state
+    if (initialid === url) {
+      const number = this.getRandomthumbnail()
+      const getdtails = imagesList[number]
+      const {id, thumbnailUrl} = getdtails
+      this.setState(prevState => ({
+        score: prevState.score + 1,
+        initialid: id,
+        initialthumnail: thumbnailUrl,
+      }))
+    } else {
+      this.setState({istrue: true})
+    }
+  }
+
+  cleartimer = () => {
+    const {time} = this.state
+    if (time === 1) {
+      console.log(this.myinterval)
+      clearInterval(this.myinterval)
+    }
   }
 
   render() {
-    const {tabid, score, istrue, time} = this.state
-    const {thumbnailUrl, category} = imagesList[0]
-    const myfilteredlist = this.filterimages()
-
-    
-
+    const {
+      tabid,
+      score,
+      istrue,
+      time,
+      initialthumnail,
+      initialcategory,
+      filteredimgs,
+    } = this.state
+    if (time === 0) {
+      clearInterval(this.myinterval)
+      this.setState({istrue: true, time: 60})
+    }
     return (
-      <>
+      <div>
         <div className="scorebordcontainer">
           <img
             src="https://assets.ccbp.in/frontend/react-js/match-game-website-logo.png"
@@ -301,28 +354,57 @@ class App extends Component {
           </div>
         </div>
         <div className="bgcontainer">
-          <div className="thumnailcontainer">
-            <img src={thumbnailUrl} alt={category} className="thumimgsty" />
-          </div>
-          <ul className="ullistcontainer">
-            {tabsList.map(eachtab => (
-              <Tabitem
-                tabdetails={eachtab}
-                key={eachtab.tabId}
-                changetab={this.modifitablist}
-                isactive={tabid === eachtab.tabId}
+        {istrue ? (
+            <div className="scorebordcont">
+            <img
+              src="https://assets.ccbp.in/frontend/react-js/match-game-trophy.png"
+              alt=""
+              className="troyimg"
+            />
+            <h1>Your Score</h1>
+            <h1>{score}</h1>
+            <button type="button" className="retrybutsty">
+              <img
+                src="https://assets.ccbp.in/frontend/react-js/match-game-play-again-img.png"
+                alt="reset"
               />
-            ))}
-          </ul>
-          <div className="allimgcontainer">
-            {myfilteredlist.map(eachimgall => (
-              <Imgcompo myimgdetails={eachimgall} key={eachimgall.id} />
-            ))}
+              PLAY AGAIN
+            </button>
           </div>
+        ) : (
+             <div className="thumnailcontainer">
+          <img
+            src={initialthumnail}
+            alt={initialcategory}
+            className="thumimgsty"
+          />
         </div>
-      </>
+        
+            <ul className="ullistcontainer">
+          {tabsList.map(eachtab => (
+            <Tabitem
+              tabdetails={eachtab}
+              key={eachtab.tabId}
+              changetab={this.modifitablist}
+              filterimages={this.filterimages}
+              isactive={tabid === eachtab.tabId}
+            />
+          ))}
+        </ul>
+        
+        <ul className="allimgcontainer">
+          {filteredimgs.map(eachimgall => (
+            <Imgcompo
+              myimgdetails={eachimgall}
+              getImgurl={this.getImgurl}
+              key={eachimgall.id}
+            />
+          ))}
+        </ul>
+        )}
+        </div>
+      </div>
     )
   }
 }
-
 export default App
